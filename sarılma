@@ -1,24 +1,24 @@
 --[=[
-  Kucaklama Scripti (Hug/Sarılma)
-  - Yanındaki oyuncuyu kucaklar
-  - Her oyunda çalışır (Motor6D/Weld)
-  - Aç/Kapa butonlu basit arayüz
+  KUCAKLA VE TAŞI
+  - Yanındakini kucaklarsın
+  - Sen hareket edince o da seninle gelir
+  - O hareket edemez, sen onu taşırsın
+  - Basit arayüz
 ]=]
 
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local lp = Players.LocalPlayer
 
 -- GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "KucaklamaScripti"
+gui.Name = "KucaklaTasi"
 gui.Parent = lp:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 200, 0, 100)
 frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
@@ -29,11 +29,11 @@ corner.Parent = frame
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "🤗 KUCAKLAMA"
-title.TextColor3 = Color3.fromRGB(255, 200, 200)
+title.Text = "🤗 KUCAKLA & TAŞI"
+title.TextColor3 = Color3.fromRGB(255, 150, 150)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 16
+title.TextSize = 14
 title.Parent = frame
 
 local btn = Instance.new("TextButton")
@@ -61,9 +61,9 @@ status.TextSize = 12
 status.Parent = frame
 
 -- Değişkenler
-local hugging = false
+local holding = false
 local targetPlayer = nil
-local welds = {}
+local weld = nil
 
 -- En yakın oyuncuyu bul
 local function findNearestPlayer()
@@ -75,7 +75,7 @@ local function findNearestPlayer()
     
     local pos = root.Position
     local nearest = nil
-    local nearestDist = 20  -- 20 stud mesafe
+    local nearestDist = 15  -- 15 stud mesafe
     
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= lp then
@@ -96,76 +96,70 @@ local function findNearestPlayer()
     return nearest
 end
 
--- Kucaklama fonksiyonu
-local function hug(target)
-    -- Önce eski welds temizle
-    for _, weld in ipairs(welds) do
-        pcall(function() weld:Destroy() end)
-    end
-    welds = {}
-    
+-- Kucakla ve weld yap (taşıma için)
+local function holdPlayer(target)
     local char = lp.Character
     local targetChar = target.Character
     
     if not char or not targetChar then return false end
     
-    -- Kucaklanacak parçalar (gövde ve kollar)
-    local parts = {
-        {name = "Torso", targetName = "Torso"},
-        {name = "UpperTorso", targetName = "UpperTorso"},
-        {name = "LowerTorso", targetName = "LowerTorso"},
-        {name = "Head", targetName = "Head"},
-        {name = "Left Arm", targetName = "Right Arm"},  -- Sol kol sağ kola
-        {name = "Right Arm", targetName = "Left Arm"},  -- Sağ kol sol kola
-        {name = "LeftHand", targetName = "RightHand"},
-        {name = "RightHand", targetName = "LeftHand"},
-    }
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
     
-    for _, partInfo in ipairs(parts) do
-        local part = char:FindFirstChild(partInfo.name, true)
-        local targetPart = targetChar:FindFirstChild(partInfo.targetName, true)
-        
-        if part and targetPart and part:IsA("BasePart") and targetPart:IsA("BasePart") then
-            local weld = Instance.new("Weld")
-            weld.Part0 = part
-            weld.Part1 = targetPart
-            weld.C0 = CFrame.new(0, 0, 0)  -- Hizalama
-            weld.C1 = CFrame.new(0, 0, -0.5)  -- Biraz yakınlaştır
-            weld.Parent = part
-            table.insert(welds, weld)
+    if not root or not targetRoot then return false end
+    
+    -- Hedefin hareketini durdur
+    local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
+    if targetHum then
+        targetHum.PlatformStand = true  -- Hareket edemez
+    end
+    
+    -- Weld oluştur (hedefi sana bağla)
+    weld = Instance.new("Weld")
+    weld.Part0 = root
+    weld.Part1 = targetRoot
+    weld.C0 = CFrame.new(0, 2, 2)  -- Senin arkanda veya yanında duracak (ayarla)
+    weld.C1 = CFrame.new(0, 0, 0)
+    weld.Parent = root
+    
+    return true
+end
+
+-- Bırak
+local function releasePlayer()
+    if weld then
+        pcall(function() weld:Destroy() end)
+        weld = nil
+    end
+    
+    if targetPlayer and targetPlayer.Character then
+        local hum = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.PlatformStand = false  -- Hareket edebilir
         end
     end
-    
-    return #welds > 0
 end
 
--- Kucaklamayı çöz
-local function unHug()
-    for _, weld in ipairs(welds) do
-        pcall(function() weld:Destroy() end)
-    end
-    welds = {}
-end
-
--- Butona tıkla
+-- Buton
 btn.MouseButton1Click:Connect(function()
-    if hugging then
-        -- Kucaklamayı çöz
-        unHug()
-        hugging = false
+    if holding then
+        -- Bırak
+        releasePlayer()
+        holding = false
+        targetPlayer = nil
         btn.Text = "KUCAKLA"
         status.Text = "Hedef: Yok"
         btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     else
-        -- En yakın oyuncuyu bul
+        -- En yakını bul ve kucakla
         local target = findNearestPlayer()
         if target then
-            local success = hug(target)
+            local success = holdPlayer(target)
             if success then
-                hugging = true
+                holding = true
                 targetPlayer = target
                 btn.Text = "BIRAK"
-                status.Text = "Hedef: " .. target.Name
+                status.Text = "Taşınıyor: " .. target.Name
                 btn.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
             else
                 status.Text = "Kucaklanamadı!"
@@ -176,10 +170,10 @@ btn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Karakter ölünce veya değişince welds temizle
+-- Karakter ölünce temizle
 lp.CharacterAdded:Connect(function()
-    unHug()
-    hugging = false
+    releasePlayer()
+    holding = false
     btn.Text = "KUCAKLA"
     status.Text = "Hedef: Yok"
     btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -187,7 +181,7 @@ end)
 
 -- Bildirim
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Kucaklama Scripti",
-    Text = "Yanındaki oyuncuyu kucakla!",
+    Title = "Kucakla & Taşı",
+    Text = "Yanındakini kucakla ve taşı!",
     Duration = 4
 })
