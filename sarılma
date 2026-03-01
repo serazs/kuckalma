@@ -1,67 +1,134 @@
 --[=[
-  KUCAKLA VE TAŞI
-  - Yanındakini kucaklarsın
-  - Sen hareket edince o da seninle gelir
-  - O hareket edemez, sen onu taşırsın
-  - Basit arayüz
+  KUCAĞINDA OTURT
+  - Hedefi kucağına al, oturur pozisyonda dursun
+  - Sen hareket edince o da gelir
+  - Şık arayüz
 ]=]
 
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local lp = Players.LocalPlayer
 
--- GUI
+-- Ana GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "KucaklaTasi"
+gui.Name = "KucakOtur"
 gui.Parent = lp:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
+-- Ana çerçeve (şeffaf cam efekti)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 200, 0, 100)
-frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.Size = UDim2.new(0, 260, 0, 160)
+frame.Position = UDim2.new(0.5, -130, 0.5, -80)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+frame.BackgroundTransparency = 0.15
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
+-- Gölge
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 20, 1, 20)
+shadow.Position = UDim2.new(0, -10, 0, -10)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.7
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 10, 10)
+shadow.Parent = frame
+shadow.ZIndex = -1
+
+-- Kenarlık
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 8)
+corner.CornerRadius = UDim.new(0, 15)
 corner.Parent = frame
 
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(255, 120, 150)
+stroke.Thickness = 2
+stroke.Transparency = 0.3
+stroke.Parent = frame
+
+-- Başlık
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "🤗 KUCAKLA & TAŞI"
-title.TextColor3 = Color3.fromRGB(255, 150, 150)
+title.Size = UDim2.new(1, 0, 0, 45)
+title.Text = "💕 KUCAĞIMDA OTUR 💕"
+title.TextColor3 = Color3.fromRGB(255, 200, 220)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 14
+title.TextSize = 18
 title.Parent = frame
 
+-- Buton
 local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(0.8, 0, 0, 35)
-btn.Position = UDim2.new(0.1, 0, 0.4, 0)
-btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-btn.Text = "KUCAKLA"
+btn.Size = UDim2.new(0.7, 0, 0, 45)
+btn.Position = UDim2.new(0.15, 0, 0.4, 0)
+btn.BackgroundColor3 = Color3.fromRGB(220, 120, 140)
+btn.Text = "💺 OTURT"
 btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 btn.Font = Enum.Font.GothamBold
-btn.TextSize = 14
+btn.TextSize = 16
 btn.Parent = frame
 
 local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.CornerRadius = UDim.new(0, 12)
 btnCorner.Parent = btn
 
+-- Buton gölgesi
+local btnShadow = Instance.new("ImageLabel")
+btnShadow.Size = UDim2.new(1, 10, 1, 10)
+btnShadow.Position = UDim2.new(0, -5, 0, -5)
+btnShadow.BackgroundTransparency = 1
+btnShadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+btnShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+btnShadow.ImageTransparency = 0.6
+btnShadow.ScaleType = Enum.ScaleType.Slice
+btnShadow.SliceCenter = Rect.new(10, 10, 10, 10)
+btnShadow.Parent = btn
+btnShadow.ZIndex = -1
+
+-- Durum etiketi
+local statusBg = Instance.new("Frame")
+statusBg.Size = UDim2.new(0.8, 0, 0, 30)
+statusBg.Position = UDim2.new(0.1, 0, 0.75, 0)
+statusBg.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+statusBg.BackgroundTransparency = 0.3
+statusBg.Parent = frame
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0, 10)
+statusCorner.Parent = statusBg
+
 local status = Instance.new("TextLabel")
-status.Size = UDim2.new(1, 0, 0, 20)
-status.Position = UDim2.new(0, 0, 0.8, 0)
-status.Text = "Hedef: Yok"
-status.TextColor3 = Color3.fromRGB(200, 200, 200)
+status.Size = UDim2.new(1, 0, 1, 0)
+status.Text = "👤 Hedef: Yok"
+status.TextColor3 = Color3.fromRGB(220, 220, 220)
 status.BackgroundTransparency = 1
 status.Font = Enum.Font.Gotham
-status.TextSize = 12
-status.Parent = frame
+status.TextSize = 14
+status.Parent = statusBg
+
+-- Kapatma butonu (küçük)
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 25, 0, 25)
+closeBtn.Position = UDim2.new(1, -30, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 100)
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 16
+closeBtn.Parent = frame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+end)
 
 -- Değişkenler
-local holding = false
+local sitting = false
 local targetPlayer = nil
 local weld = nil
 
@@ -75,7 +142,7 @@ local function findNearestPlayer()
     
     local pos = root.Position
     local nearest = nil
-    local nearestDist = 15  -- 15 stud mesafe
+    local nearestDist = 15
     
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= lp then
@@ -96,37 +163,47 @@ local function findNearestPlayer()
     return nearest
 end
 
--- Kucakla ve weld yap (taşıma için)
-local function holdPlayer(target)
+-- Kucağa oturt
+local function sitOnLap(target)
     local char = lp.Character
     local targetChar = target.Character
     
     if not char or not targetChar then return false end
     
-    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
-    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
+    -- Senin gövden (kucağın)
+    local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
+    -- Hedefin bel kemiği (oturması için)
+    local targetHip = targetChar:FindFirstChild("LowerTorso") or targetChar:FindFirstChild("Torso")
     
-    if not root or not targetRoot then return false end
+    if not torso or not targetHip then return false end
     
     -- Hedefin hareketini durdur
     local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
     if targetHum then
-        targetHum.PlatformStand = true  -- Hareket edemez
+        targetHum.PlatformStand = true
+        -- Oturma animasyonu varsa dene
+        targetHum.Sit = true
     end
     
-    -- Weld oluştur (hedefi sana bağla)
+    -- Önceki welds temizle
+    if weld then
+        pcall(function() weld:Destroy() end)
+        weld = nil
+    end
+    
+    -- Weld oluştur (hedefi kucağına oturt)
     weld = Instance.new("Weld")
-    weld.Part0 = root
-    weld.Part1 = targetRoot
-    weld.C0 = CFrame.new(0, 2, 2)  -- Senin arkanda veya yanında duracak (ayarla)
+    weld.Part0 = torso
+    weld.Part1 = targetHip
+    weld.C0 = CFrame.new(0, -1.2, 0.8)  -- Kucağında oturma pozisyonu
     weld.C1 = CFrame.new(0, 0, 0)
-    weld.Parent = root
+    weld.Parent = torso
     
     return true
 end
 
 -- Bırak
-local function releasePlayer()
+local function release()
     if weld then
         pcall(function() weld:Destroy() end)
         weld = nil
@@ -135,53 +212,66 @@ local function releasePlayer()
     if targetPlayer and targetPlayer.Character then
         local hum = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
         if hum then
-            hum.PlatformStand = false  -- Hareket edebilir
+            hum.PlatformStand = false
+            hum.Sit = false
         end
     end
 end
 
--- Buton
+-- Buton animasyonu
+local function buttonPulse()
+    local tween = TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(250, 150, 170)})
+    tween:Play()
+    tween.Completed:Connect(function()
+        local tween2 = TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(220, 120, 140)})
+        tween2:Play()
+    end)
+end
+
+-- Buton tıklama
 btn.MouseButton1Click:Connect(function()
-    if holding then
+    buttonPulse()
+    
+    if sitting then
         -- Bırak
-        releasePlayer()
-        holding = false
+        release()
+        sitting = false
         targetPlayer = nil
-        btn.Text = "KUCAKLA"
-        status.Text = "Hedef: Yok"
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        btn.Text = "💺 OTURT"
+        status.Text = "👤 Hedef: Yok"
+        btn.BackgroundColor3 = Color3.fromRGB(220, 120, 140)
     else
-        -- En yakını bul ve kucakla
+        -- En yakını bul
         local target = findNearestPlayer()
         if target then
-            local success = holdPlayer(target)
+            local success = sitOnLap(target)
             if success then
-                holding = true
+                sitting = true
                 targetPlayer = target
-                btn.Text = "BIRAK"
-                status.Text = "Taşınıyor: " .. target.Name
-                btn.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
+                btn.Text = "🆓 BIRAK"
+                status.Text = "👤 Kucağında: " .. target.DisplayName or target.Name
+                btn.BackgroundColor3 = Color3.fromRGB(180, 80, 100)
             else
-                status.Text = "Kucaklanamadı!"
+                status.Text = "❌ Oturtulamadı!"
             end
         else
-            status.Text = "Yakında kimse yok!"
+            status.Text = "⚠️ Yakında kimse yok!"
         end
     end
 end)
 
 -- Karakter ölünce temizle
 lp.CharacterAdded:Connect(function()
-    releasePlayer()
-    holding = false
-    btn.Text = "KUCAKLA"
-    status.Text = "Hedef: Yok"
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    release()
+    sitting = false
+    btn.Text = "💺 OTURT"
+    status.Text = "👤 Hedef: Yok"
+    btn.BackgroundColor3 = Color3.fromRGB(220, 120, 140)
 end)
 
 -- Bildirim
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Kucakla & Taşı",
-    Text = "Yanındakini kucakla ve taşı!",
+    Title = "Kucağımda Otur",
+    Text = "❤️ Yanındakini kucağına oturt!",
     Duration = 4
 })
