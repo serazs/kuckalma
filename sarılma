@@ -1,8 +1,8 @@
 --[=[
-  KUCAĞINDA OTURT
-  - Hedefi kucağına al, oturur pozisyonda dursun
-  - Sen hareket edince o da gelir
-  - Şık arayüz
+  KUCAĞINDA OTURT - PROFESYONEL EDİTİON
+  - Minimalist, koyu tema, keskin çizgiler
+  - Hedefi kucağında oturtur, sen hareket edince o da gelir
+  - Şeffaf cam efekti, gölgeler, profesyonel görünüm
 ]=]
 
 local Players = game:GetService("Players")
@@ -11,117 +11,180 @@ local lp = Players.LocalPlayer
 
 -- Ana GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "KucakOtur"
+gui.Name = "LapSitPro"
 gui.Parent = lp:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
--- Ana çerçeve (şeffaf cam efekti)
+-- Ana çerçeve (Dark tema, cam efekti)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 260, 0, 160)
-frame.Position = UDim2.new(0.5, -130, 0.5, -80)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-frame.BackgroundTransparency = 0.15
+frame.Size = UDim2.new(0, 280, 0, 170)
+frame.Position = UDim2.new(0.5, -140, 0.5, -85)
+frame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+frame.BackgroundTransparency = 0.1
 frame.Active = true
 frame.Draggable = true
+frame.ClipsDescendants = false
 frame.Parent = gui
 
--- Gölge
+-- Arka plan parlaklığı
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 15))
+})
+gradient.Rotation = 90
+gradient.Parent = frame
+
+-- Kenarlık (ince, keskin)
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 6)
+corner.Parent = frame
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(60, 60, 70)
+stroke.Thickness = 1.2
+stroke.Transparency = 0.2
+stroke.Parent = frame
+
+-- Gölge (dış)
 local shadow = Instance.new("ImageLabel")
 shadow.Size = UDim2.new(1, 20, 1, 20)
 shadow.Position = UDim2.new(0, -10, 0, -10)
 shadow.BackgroundTransparency = 1
 shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-shadow.ImageTransparency = 0.7
+shadow.ImageTransparency = 0.6
 shadow.ScaleType = Enum.ScaleType.Slice
 shadow.SliceCenter = Rect.new(10, 10, 10, 10)
 shadow.Parent = frame
 shadow.ZIndex = -1
 
--- Kenarlık
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 15)
-corner.Parent = frame
-
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(255, 120, 150)
-stroke.Thickness = 2
-stroke.Transparency = 0.3
-stroke.Parent = frame
+-- Üst çizgi (ayırıcı)
+local topLine = Instance.new("Frame")
+topLine.Size = UDim2.new(1, -20, 0, 1)
+topLine.Position = UDim2.new(0, 10, 0, 45)
+topLine.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+topLine.BorderSizePixel = 0
+topLine.Parent = frame
 
 -- Başlık
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 45)
-title.Text = "💕 KUCAĞIMDA OTUR 💕"
-title.TextColor3 = Color3.fromRGB(255, 200, 220)
+title.Text = "LAP SIT v2.0"
+title.TextColor3 = Color3.fromRGB(230, 230, 240)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 18
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Position = UDim2.new(0, 15, 0, 0)
 title.Parent = frame
 
--- Buton
+-- Küçük ikon (nokta)
+local dot = Instance.new("Frame")
+dot.Size = UDim2.new(0, 6, 0, 6)
+dot.Position = UDim2.new(1, -25, 0, 20)
+dot.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+dot.BorderSizePixel = 0
+dot.Parent = frame
+
+local dotCorner = Instance.new("UICorner")
+dotCorner.CornerRadius = UDim.new(1, 0)
+dotCorner.Parent = dot
+
+-- Ana buton
 local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(0.7, 0, 0, 45)
-btn.Position = UDim2.new(0.15, 0, 0.4, 0)
-btn.BackgroundColor3 = Color3.fromRGB(220, 120, 140)
-btn.Text = "💺 OTURT"
-btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Size = UDim2.new(0.8, 0, 0, 42)
+btn.Position = UDim2.new(0.1, 0, 0.35, 0)
+btn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+btn.Text = "SIT ON LAP"
+btn.TextColor3 = Color3.fromRGB(220, 220, 230)
 btn.Font = Enum.Font.GothamBold
-btn.TextSize = 16
+btn.TextSize = 14
+btn.AutoButtonColor = false
 btn.Parent = frame
 
 local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 12)
+btnCorner.CornerRadius = UDim.new(0, 4)
 btnCorner.Parent = btn
 
--- Buton gölgesi
-local btnShadow = Instance.new("ImageLabel")
-btnShadow.Size = UDim2.new(1, 10, 1, 10)
-btnShadow.Position = UDim2.new(0, -5, 0, -5)
-btnShadow.BackgroundTransparency = 1
-btnShadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-btnShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-btnShadow.ImageTransparency = 0.6
-btnShadow.ScaleType = Enum.ScaleType.Slice
-btnShadow.SliceCenter = Rect.new(10, 10, 10, 10)
-btnShadow.Parent = btn
-btnShadow.ZIndex = -1
+local btnStroke = Instance.new("UIStroke")
+btnStroke.Color = Color3.fromRGB(80, 80, 95)
+btnStroke.Thickness = 1
+btnStroke.Parent = btn
 
--- Durum etiketi
-local statusBg = Instance.new("Frame")
-statusBg.Size = UDim2.new(0.8, 0, 0, 30)
-statusBg.Position = UDim2.new(0.1, 0, 0.75, 0)
-statusBg.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-statusBg.BackgroundTransparency = 0.3
-statusBg.Parent = frame
+-- Buton hover efekti
+btn.MouseEnter:Connect(function()
+    TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 55)}):Play()
+end)
+
+btn.MouseLeave:Connect(function()
+    if not sitting then
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 42)}):Play()
+    else
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 35, 42)}):Play()
+    end
+end)
+
+-- Durum göstergesi
+local statusContainer = Instance.new("Frame")
+statusContainer.Size = UDim2.new(0.8, 0, 0, 36)
+statusContainer.Position = UDim2.new(0.1, 0, 0.65, 0)
+statusContainer.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
+statusContainer.Parent = frame
 
 local statusCorner = Instance.new("UICorner")
-statusCorner.CornerRadius = UDim.new(0, 10)
-statusCorner.Parent = statusBg
+statusCorner.CornerRadius = UDim.new(0, 4)
+statusCorner.Parent = statusContainer
 
-local status = Instance.new("TextLabel")
-status.Size = UDim2.new(1, 0, 1, 0)
-status.Text = "👤 Hedef: Yok"
-status.TextColor3 = Color3.fromRGB(220, 220, 220)
-status.BackgroundTransparency = 1
-status.Font = Enum.Font.Gotham
-status.TextSize = 14
-status.Parent = statusBg
+local statusStroke = Instance.new("UIStroke")
+statusStroke.Color = Color3.fromRGB(50, 50, 60)
+statusStroke.Thickness = 1
+statusStroke.Parent = statusContainer
 
--- Kapatma butonu (küçük)
+local statusIcon = Instance.new("Frame")
+statusIcon.Size = UDim2.new(0, 8, 0, 8)
+statusIcon.Position = UDim2.new(0, 12, 0.5, -4)
+statusIcon.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+statusIcon.BorderSizePixel = 0
+statusIcon.Parent = statusContainer
+
+local iconCorner = Instance.new("UICorner")
+iconCorner.CornerRadius = UDim.new(1, 0)
+iconCorner.Parent = statusIcon
+
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.new(1, -30, 1, 0)
+statusText.Position = UDim2.new(0, 25, 0, 0)
+statusText.Text = "TARGET: NONE"
+statusText.TextColor3 = Color3.fromRGB(150, 150, 160)
+statusText.BackgroundTransparency = 1
+statusText.Font = Enum.Font.Gotham
+statusText.TextSize = 12
+statusText.TextXAlignment = Enum.TextXAlignment.Left
+statusText.Parent = statusContainer
+
+-- Kapatma butonu (minimal)
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 25, 0, 25)
-closeBtn.Position = UDim2.new(1, -30, 0, 5)
-closeBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 100)
+closeBtn.Size = UDim2.new(0, 24, 0, 24)
+closeBtn.Position = UDim2.new(1, -32, 0, 10)
+closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 closeBtn.Text = "✕"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 16
+closeBtn.TextColor3 = Color3.fromRGB(140, 140, 150)
+closeBtn.Font = Enum.Font.Gotham
+closeBtn.TextSize = 14
 closeBtn.Parent = frame
 
 local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.CornerRadius = UDim.new(0, 4)
 closeCorner.Parent = closeBtn
+
+closeBtn.MouseEnter:Connect(function()
+    TweenService:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 35, 42), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+end)
+
+closeBtn.MouseLeave:Connect(function()
+    TweenService:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 42), TextColor3 = Color3.fromRGB(140, 140, 150)}):Play()
+end)
 
 closeBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
@@ -170,32 +233,26 @@ local function sitOnLap(target)
     
     if not char or not targetChar then return false end
     
-    -- Senin gövden (kucağın)
     local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
-    -- Hedefin bel kemiği (oturması için)
     local targetHip = targetChar:FindFirstChild("LowerTorso") or targetChar:FindFirstChild("Torso")
     
     if not torso or not targetHip then return false end
     
-    -- Hedefin hareketini durdur
     local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
     if targetHum then
         targetHum.PlatformStand = true
-        -- Oturma animasyonu varsa dene
         targetHum.Sit = true
     end
     
-    -- Önceki welds temizle
     if weld then
         pcall(function() weld:Destroy() end)
         weld = nil
     end
     
-    -- Weld oluştur (hedefi kucağına oturt)
     weld = Instance.new("Weld")
     weld.Part0 = torso
     weld.Part1 = targetHip
-    weld.C0 = CFrame.new(0, -1.2, 0.8)  -- Kucağında oturma pozisyonu
+    weld.C0 = CFrame.new(0, -1.2, 0.8)
     weld.C1 = CFrame.new(0, 0, 0)
     weld.Parent = torso
     
@@ -218,44 +275,32 @@ local function release()
     end
 end
 
--- Buton animasyonu
-local function buttonPulse()
-    local tween = TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(250, 150, 170)})
-    tween:Play()
-    tween.Completed:Connect(function()
-        local tween2 = TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(220, 120, 140)})
-        tween2:Play()
-    end)
-end
-
--- Buton tıklama
+-- Buton işlevi
 btn.MouseButton1Click:Connect(function()
-    buttonPulse()
-    
     if sitting then
-        -- Bırak
         release()
         sitting = false
         targetPlayer = nil
-        btn.Text = "💺 OTURT"
-        status.Text = "👤 Hedef: Yok"
-        btn.BackgroundColor3 = Color3.fromRGB(220, 120, 140)
+        btn.Text = "SIT ON LAP"
+        statusText.Text = "TARGET: NONE"
+        statusIcon.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 42)}):Play()
     else
-        -- En yakını bul
         local target = findNearestPlayer()
         if target then
             local success = sitOnLap(target)
             if success then
                 sitting = true
                 targetPlayer = target
-                btn.Text = "🆓 BIRAK"
-                status.Text = "👤 Kucağında: " .. target.DisplayName or target.Name
-                btn.BackgroundColor3 = Color3.fromRGB(180, 80, 100)
+                btn.Text = "RELEASE"
+                statusText.Text = "TARGET: " .. string.upper(target.Name)
+                statusIcon.BackgroundColor3 = Color3.fromRGB(150, 200, 255)
+                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 35, 42)}):Play()
             else
-                status.Text = "❌ Oturtulamadı!"
+                statusText.Text = "TARGET: INVALID"
             end
         else
-            status.Text = "⚠️ Yakında kimse yok!"
+            statusText.Text = "TARGET: NOT FOUND"
         end
     end
 end)
@@ -264,14 +309,15 @@ end)
 lp.CharacterAdded:Connect(function()
     release()
     sitting = false
-    btn.Text = "💺 OTURT"
-    status.Text = "👤 Hedef: Yok"
-    btn.BackgroundColor3 = Color3.fromRGB(220, 120, 140)
+    btn.Text = "SIT ON LAP"
+    statusText.Text = "TARGET: NONE"
+    statusIcon.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
 end)
 
 -- Bildirim
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Kucağımda Otur",
-    Text = "❤️ Yanındakini kucağına oturt!",
-    Duration = 4
+    Title = "Lap Sit Pro",
+    Text = "Professional lap sitting system activated",
+    Duration = 3
 })
