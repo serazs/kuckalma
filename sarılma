@@ -1,101 +1,236 @@
 --[=[
-  SARIŞMA SCRIPTİ
-  - Hedef kişi sana sarılır (önden sarılma)
-  - Sen hareket edince o da sarılarak gelir
-  - Ayrıl deyince serbest kalır
-  - Romantik ve profesyonel arayüz
+  YAPIŞMA SİSTEMİ ULTİMATE
+  - Hedef sana yapışır, hiç hareket edemez
+  - 3 farklı pozisyon: Ön, Arka, Yan
+  - Pozisyonu anında değiştir
+  - Sadece sen hareket edersin
+  - Çifte korumalı sistem
 ]=]
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local lp = Players.LocalPlayer
 
--- GUI
+-- Ana GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "SarilmaScripti"
+gui.Name = "YapismaUltimate"
 gui.Parent = lp:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
--- Ana pencere
+-- Ana çerçeve (Ultra şık)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 260, 0, 170)
-frame.Position = UDim2.new(0.5, -130, 0.5, -85)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+frame.Size = UDim2.new(0, 300, 0, 220)
+frame.Position = UDim2.new(0.5, -150, 0.5, -110)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+frame.BackgroundTransparency = 0.05
 frame.Active = true
 frame.Draggable = true
+frame.ClipsDescendants = false
 frame.Parent = gui
 
+-- Modern gölge
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 20, 1, 20)
+shadow.Position = UDim2.new(0, -10, 0, -10)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+shadow.ImageTransparency = 0.7
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 10, 10)
+shadow.Parent = frame
+shadow.ZIndex = -1
+
+-- Kenarlık
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 10)
+corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = frame
 
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(255, 120, 150)
+stroke.Color = Color3.fromRGB(80, 140, 255)
 stroke.Thickness = 1.5
+stroke.Transparency = 0.3
 stroke.Parent = frame
+
+-- Gradient arkaplan
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 5, 10))
+})
+gradient.Rotation = 90
+gradient.Parent = frame
 
 -- Başlık
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 45)
-title.Text = "🤗 SARILMA MODU"
-title.TextColor3 = Color3.fromRGB(255, 200, 220)
+title.Text = "🌀 YAPIŞMA SİSTEMİ"
+title.TextColor3 = Color3.fromRGB(200, 220, 255)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 18
+title.TextSize = 16
 title.Parent = frame
 
--- Sarıl butonu
-local hugBtn = Instance.new("TextButton")
-hugBtn.Size = UDim2.new(0.8, 0, 0, 40)
-hugBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
-hugBtn.BackgroundColor3 = Color3.fromRGB(220, 100, 120)
-hugBtn.Text = "🤗 SARIL"
-hugBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-hugBtn.Font = Enum.Font.GothamBold
-hugBtn.TextSize = 16
-hugBtn.Parent = frame
+-- Hedef göstergesi
+local targetFrame = Instance.new("Frame")
+targetFrame.Size = UDim2.new(0.9, 0, 0, 35)
+targetFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+targetFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+targetFrame.Parent = frame
 
-local hugCorner = Instance.new("UICorner")
-hugCorner.CornerRadius = UDim.new(0, 8)
-hugCorner.Parent = hugBtn
+local targetCorner = Instance.new("UICorner")
+targetCorner.CornerRadius = UDim.new(0, 8)
+targetCorner.Parent = targetFrame
 
--- Ayrıl butonu
-local leaveBtn = Instance.new("TextButton")
-leaveBtn.Size = UDim2.new(0.8, 0, 0, 40)
-leaveBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
-leaveBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
-leaveBtn.Text = "🚶 AYRIL"
-leaveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-leaveBtn.Font = Enum.Font.GothamBold
-leaveBtn.TextSize = 16
-leaveBtn.Parent = frame
+local targetIcon = Instance.new("Frame")
+targetIcon.Size = UDim2.new(0, 8, 0, 8)
+targetIcon.Position = UDim2.new(0, 12, 0.5, -4)
+targetIcon.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+targetIcon.BorderSizePixel = 0
+targetIcon.Parent = targetFrame
 
-local leaveCorner = Instance.new("UICorner")
-leaveCorner.CornerRadius = UDim.new(0, 8)
-leaveCorner.Parent = leaveBtn
+local targetIconCorner = Instance.new("UICorner")
+targetIconCorner.CornerRadius = UDim.new(1, 0)
+targetIconCorner.Parent = targetIcon
 
--- Durum
-local status = Instance.new("TextLabel")
-status.Size = UDim2.new(0.9, 0, 0, 25)
-status.Position = UDim2.new(0.05, 0, 0.82, 0)
-status.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-status.Text = "💔 Hedef: Yok"
-status.TextColor3 = Color3.fromRGB(180, 180, 180)
-status.Font = Enum.Font.Gotham
-status.TextSize = 13
-status.Parent = frame
+local targetName = Instance.new("TextLabel")
+targetName.Size = UDim2.new(1, -30, 1, 0)
+targetName.Position = UDim2.new(0, 25, 0, 0)
+targetName.Text = "HEDEF: YOK"
+targetName.TextColor3 = Color3.fromRGB(180, 180, 200)
+targetName.BackgroundTransparency = 1
+targetName.Font = Enum.Font.Gotham
+targetName.TextSize = 13
+targetName.TextXAlignment = Enum.TextXAlignment.Left
+targetName.Parent = targetFrame
+
+-- Ana butonlar (Yapış / Çöz)
+local btnContainer = Instance.new("Frame")
+btnContainer.Size = UDim2.new(0.9, 0, 0, 40)
+btnContainer.Position = UDim2.new(0.05, 0, 0.35, 0)
+btnContainer.BackgroundTransparency = 1
+btnContainer.Parent = frame
+
+local stickBtn = Instance.new("TextButton")
+stickBtn.Size = UDim2.new(0.48, 0, 1, 0)
+stickBtn.Position = UDim2.new(0, 0, 0, 0)
+stickBtn.BackgroundColor3 = Color3.fromRGB(40, 100, 200)
+stickBtn.Text = "🔒 YAPIŞTIR"
+stickBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+stickBtn.Font = Enum.Font.GothamBold
+stickBtn.TextSize = 13
+stickBtn.Parent = btnContainer
+
+local stickCorner = Instance.new("UICorner")
+stickCorner.CornerRadius = UDim.new(0, 6)
+stickCorner.Parent = stickBtn
+
+local releaseBtn = Instance.new("TextButton")
+releaseBtn.Size = UDim2.new(0.48, 0, 1, 0)
+releaseBtn.Position = UDim2.new(0.52, 0, 0, 0)
+releaseBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+releaseBtn.Text = "🔓 ÇÖZ"
+releaseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+releaseBtn.Font = Enum.Font.GothamBold
+releaseBtn.TextSize = 13
+releaseBtn.Parent = btnContainer
+
+local releaseCorner = Instance.new("UICorner")
+releaseCorner.CornerRadius = UDim.new(0, 6)
+releaseCorner.Parent = releaseBtn
+
+-- Pozisyon seçici
+local posLabel = Instance.new("TextLabel")
+posLabel.Size = UDim2.new(0.9, 0, 0, 20)
+posLabel.Position = UDim2.new(0.05, 0, 0.5, 0)
+posLabel.Text = "YAPIŞMA POZİSYONU"
+posLabel.TextColor3 = Color3.fromRGB(150, 150, 180)
+posLabel.BackgroundTransparency = 1
+posLabel.Font = Enum.Font.Gotham
+posLabel.TextSize = 11
+posLabel.TextXAlignment = Enum.TextXAlignment.Left
+posLabel.Parent = frame
+
+local posContainer = Instance.new("Frame")
+posContainer.Size = UDim2.new(0.9, 0, 0, 35)
+posContainer.Position = UDim2.new(0.05, 0, 0.55, 0)
+posContainer.BackgroundTransparency = 1
+posContainer.Parent = frame
+
+-- Pozisyon butonları
+local positions = {
+    {name = "ÖN", pos = CFrame.new(0, 0, 2), color = Color3.fromRGB(70, 130, 200)},
+    {name = "ARKA", pos = CFrame.new(0, 0, -2), color = Color3.fromRGB(200, 130, 70)},
+    {name = "YAN", pos = CFrame.new(2, 0, 0), color = Color3.fromRGB(130, 200, 70)}
+}
+
+local posButtons = {}
+local currentPos = 1
+
+for i, data in ipairs(positions) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.3, -4, 1, 0)
+    btn.Position = UDim2.new((i-1)*0.33, 2, 0, 0)
+    btn.BackgroundColor3 = data.color
+    btn.Text = data.name
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 12
+    btn.Parent = posContainer
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    
+    posButtons[i] = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        currentPos = i
+        for j, b in ipairs(posButtons) do
+            b.BackgroundColor3 = positions[j].color
+            b.TextTransparency = 0
+        end
+        btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+        
+        -- Eğer aktifse pozisyonu güncelle
+        if stuck and weld then
+            weld.C0 = positions[currentPos].pos
+        end
+    end)
+end
+
+-- Durum göstergesi
+local statusFrame = Instance.new("Frame")
+statusFrame.Size = UDim2.new(0.9, 0, 0, 30)
+statusFrame.Position = UDim2.new(0.05, 0, 0.75, 0)
+statusFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+statusFrame.Parent = frame
 
 local statusCorner = Instance.new("UICorner")
 statusCorner.CornerRadius = UDim.new(0, 6)
-statusCorner.Parent = status
+statusCorner.Parent = statusFrame
 
--- Kapatma
+local statusText = Instance.new("TextLabel")
+statusText.Size = UDim2.new(1, -10, 1, 0)
+statusText.Position = UDim2.new(0, 10, 0, 0)
+statusText.Text = "⚪ HAZIR"
+statusText.TextColor3 = Color3.fromRGB(150, 150, 170)
+statusText.BackgroundTransparency = 1
+statusText.Font = Enum.Font.Gotham
+statusText.TextSize = 12
+statusText.TextXAlignment = Enum.TextXAlignment.Left
+statusText.Parent = statusFrame
+
+-- Kapatma butonu
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 24, 0, 24)
 closeBtn.Position = UDim2.new(1, -32, 0, 10)
-closeBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
 closeBtn.Text = "✕"
-closeBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+closeBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
 closeBtn.Font = Enum.Font.Gotham
 closeBtn.TextSize = 14
 closeBtn.Parent = frame
@@ -105,13 +240,17 @@ closeCorner.CornerRadius = UDim.new(0, 6)
 closeCorner.Parent = closeBtn
 
 closeBtn.MouseButton1Click:Connect(function()
+    if stuck then unstick() end
     gui:Destroy()
 end)
 
 -- Değişkenler
-local hugging = false
-local hugTarget = nil
+local stuck = false
+local stuckTarget = nil
 local weld = nil
+local bp = nil
+local bg = nil
+local heartbeatConn = nil
 
 -- En yakın oyuncuyu bul
 local function findNearestPlayer()
@@ -122,19 +261,16 @@ local function findNearestPlayer()
     
     local pos = root.Position
     local nearest = nil
-    local nearestDist = 15
+    local nearestDist = 20
     
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= lp then
             local pChar = player.Character
-            if pChar then
-                local pRoot = pChar:FindFirstChild("HumanoidRootPart") or pChar:FindFirstChild("Torso")
-                if pRoot then
-                    local dist = (pos - pRoot.Position).Magnitude
-                    if dist < nearestDist then
-                        nearestDist = dist
-                        nearest = player
-                    end
+            if pChar and pChar.PrimaryPart then
+                local dist = (pos - pChar.PrimaryPart.Position).Magnitude
+                if dist < nearestDist then
+                    nearestDist = dist
+                    nearest = player
                 end
             end
         end
@@ -142,125 +278,147 @@ local function findNearestPlayer()
     return nearest
 end
 
--- Sarılma fonksiyonu
-local function hugPlayer(target)
+-- Yapıştır
+local function stick(target)
     local char = lp.Character
     local targetChar = target.Character
     
     if not char or not targetChar then return false end
     
-    -- Senin gövden
-    local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
-    -- Hedefin gövdesi
-    local targetTorso = targetChar:FindFirstChild("UpperTorso") or targetChar:FindFirstChild("Torso")
-    
-    if not torso or not targetTorso then return false end
-    
-    -- Hedefin hareketini durdur
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
     local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
-    if targetHum then
-        targetHum.PlatformStand = true  -- Hareket edemez
-        targetHum.AutoRotate = false    -- Dönmesin
-    end
     
-    -- Eski welds temizle
-    if weld then
-        pcall(function() weld:Destroy() end)
-        weld = nil
-    end
+    if not root or not targetRoot or not targetHum then return false end
     
-    -- Yeni weld (sarılmak için)
+    -- Hedefi felç et
+    targetHum.PlatformStand = true
+    targetHum.AutoRotate = false
+    targetHum.WalkSpeed = 0
+    targetHum.JumpPower = 0
+    
+    -- Root'u sabitle (fiziksel)
+    targetRoot.Anchored = false
+    targetRoot.CanCollide = false
+    
+    -- Eski bağlantıları temizle
+    pcall(function() 
+        if weld then weld:Destroy() end
+        if bp then bp:Destroy() end
+        if bg then bg:Destroy() end
+        if heartbeatConn then heartbeatConn:Disconnect() end
+    end)
+    
+    -- Weld (ana bağlantı)
     weld = Instance.new("Weld")
-    weld.Part0 = torso          -- Senin gövden
-    weld.Part1 = targetTorso    -- Onun gövdesi
-    weld.C0 = CFrame.new(0, 0, 1.2) -- Senin pozisyonun
-    weld.C1 = CFrame.new(0, 0, -1)  -- Onun pozisyonu (sana yakın)
-    weld.Parent = torso
+    weld.Part0 = root
+    weld.Part1 = targetRoot
+    weld.C0 = positions[currentPos].pos
+    weld.C1 = CFrame.new(0, 0, 0)
+    weld.Parent = root
     
-    -- Kolları da sarılır gibi yapalım (opsiyonel)
-    local arm = char:FindFirstChild("Left Arm") or char:FindFirstChild("LeftHand")
-    local targetArm = targetChar:FindFirstChild("Right Arm") or targetChar:FindFirstChild("RightHand")
-    if arm and targetArm then
-        local armWeld = Instance.new("Weld")
-        armWeld.Part0 = arm
-        armWeld.Part1 = targetArm
-        armWeld.C0 = CFrame.new(0, 0, 0)
-        armWeld.C1 = CFrame.new(0, 0, 0)
-        armWeld.Parent = arm
-        -- Ana weld'e ekle (isteğe bağlı, şimdilik sadece gövde)
-    end
+    -- BodyPosition (yedek)
+    bp = Instance.new("BodyPosition")
+    bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bp.P = 20000
+    bp.Parent = targetRoot
+    
+    bg = Instance.new("BodyGyro")
+    bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    bg.P = 20000
+    bg.Parent = targetRoot
+    
+    -- Heartbeat ile sürekli kontrol
+    heartbeatConn = RunService.Heartbeat:Connect(function()
+        if not stuck or not targetChar or not targetChar.Parent or not char or not char.Parent then
+            return
+        end
+        if root and targetRoot then
+            local targetPos = root.Position + (root.CFrame:VectorToWorldSpace(positions[currentPos].pos.Position))
+            bp.Position = targetPos
+            bg.CFrame = root.CFrame
+        end
+    end)
     
     return true
 end
 
--- Ayrılma
-local function leaveHug()
-    if weld then
-        pcall(function() weld:Destroy() end)
-        weld = nil
-    end
-    
-    if hugTarget and hugTarget.Character then
-        local hum = hugTarget.Character:FindFirstChildOfClass("Humanoid")
+-- Çöz
+local function release()
+    stuck = false
+    if stuckTarget and stuckTarget.Character then
+        local hum = stuckTarget.Character:FindFirstChildOfClass("Humanoid")
         if hum then
             hum.PlatformStand = false
             hum.AutoRotate = true
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
         end
     end
     
-    hugging = false
-    hugTarget = nil
-    status.Text = "💔 Hedef: Yok"
-    hugBtn.BackgroundColor3 = Color3.fromRGB(220, 100, 120)
-    hugBtn.Text = "🤗 SARIL"
+    pcall(function()
+        if weld then weld:Destroy() end
+        if bp then bp:Destroy() end
+        if bg then bg:Destroy() end
+        if heartbeatConn then heartbeatConn:Disconnect() end
+    end)
+    
+    weld = nil; bp = nil; bg = nil; heartbeatConn = nil
+    stuckTarget = nil
 end
 
--- SARIL butonu
-hugBtn.MouseButton1Click:Connect(function()
-    if hugging then
-        -- Zaten sarılı, bir şey yapma (istersen uyarı verebiliriz)
-        status.Text = "Zaten sarılısın!"
-        task.wait(1)
-        status.Text = "💕 Hedef: " .. (hugTarget and hugTarget.Name or "Yok")
-    else
-        local target = findNearestPlayer()
-        if target then
-            local success = hugPlayer(target)
-            if success then
-                hugging = true
-                hugTarget = target
-                hugBtn.BackgroundColor3 = Color3.fromRGB(150, 70, 90)
-                hugBtn.Text = "🤗 SARILDI"
-                status.Text = "💕 Hedef: " .. target.Name
-            else
-                status.Text = "Sarılma başarısız!"
-            end
+-- Yapıştır butonu
+stickBtn.MouseButton1Click:Connect(function()
+    if stuck then
+        statusText.Text = "⚠️ Zaten biri yapışık!"
+        return
+    end
+    
+    local target = findNearestPlayer()
+    if target then
+        statusText.Text = "⏳ Yapıştırılıyor..."
+        task.wait(0.1)
+        local success = stick(target)
+        if success then
+            stuck = true
+            stuckTarget = target
+            targetName.Text = "HEDEF: " .. target.Name:upper()
+            targetIcon.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+            statusText.Text = "✅ YAPIŞTI - " .. target.Name
+            stickBtn.BackgroundColor3 = Color3.fromRGB(60, 80, 140)
         else
-            status.Text = "Yakında kimse yok!"
+            statusText.Text = "❌ Yapıştırma başarısız!"
         end
-    end
-end)
-
--- AYRIL butonu
-leaveBtn.MouseButton1Click:Connect(function()
-    if hugging then
-        leaveHug()
-        status.Text = "💔 Ayrıldı"
-        task.wait(1)
-        status.Text = "💔 Hedef: Yok"
     else
-        status.Text = "Sarılacak kimse yok!"
+        statusText.Text = "⚠️ Yakında kimse yok!"
     end
 end)
 
--- Karakter ölünce temizle
-lp.CharacterAdded:Connect(function()
-    leaveHug()
+-- Çöz butonu
+releaseBtn.MouseButton1Click:Connect(function()
+    if stuck then
+        release()
+        targetName.Text = "HEDEF: YOK"
+        targetIcon.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+        statusText.Text = "✅ Çözüldü"
+        stickBtn.BackgroundColor3 = Color3.fromRGB(40, 100, 200)
+    else
+        statusText.Text = "⚠️ Yapışık kimse yok!"
+    end
 end)
 
--- Bildirim
+-- Karakter değişince
+lp.CharacterAdded:Connect(function()
+    release()
+    targetName.Text = "HEDEF: YOK"
+    targetIcon.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+    statusText.Text = "⚪ HAZIR"
+    stickBtn.BackgroundColor3 = Color3.fromRGB(40, 100, 200)
+end)
+
+-- Başlangıç bildirimi
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Sarılma Scripti",
-    Text = "Yanındaki sana sarılsın, seni takip etsin",
+    Title = "Yapışma Sistemi Ultimate",
+    Text = "Hedefi felç et, 3 pozisyon seç",
     Duration = 4
 })
