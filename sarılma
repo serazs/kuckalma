@@ -1,0 +1,193 @@
+--[=[
+  Kucaklama Scripti (Hug/Sarılma)
+  - Yanındaki oyuncuyu kucaklar
+  - Her oyunda çalışır (Motor6D/Weld)
+  - Aç/Kapa butonlu basit arayüz
+]=]
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local lp = Players.LocalPlayer
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "KucaklamaScripti"
+gui.Parent = lp:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 8)
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "🤗 KUCAKLAMA"
+title.TextColor3 = Color3.fromRGB(255, 200, 200)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.Parent = frame
+
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0.8, 0, 0, 35)
+btn.Position = UDim2.new(0.1, 0, 0.4, 0)
+btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+btn.Text = "KUCAKLA"
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 14
+btn.Parent = frame
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.Parent = btn
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, 0, 0, 20)
+status.Position = UDim2.new(0, 0, 0.8, 0)
+status.Text = "Hedef: Yok"
+status.TextColor3 = Color3.fromRGB(200, 200, 200)
+status.BackgroundTransparency = 1
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.Parent = frame
+
+-- Değişkenler
+local hugging = false
+local targetPlayer = nil
+local welds = {}
+
+-- En yakın oyuncuyu bul
+local function findNearestPlayer()
+    local char = lp.Character
+    if not char then return nil end
+    
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    if not root then return nil end
+    
+    local pos = root.Position
+    local nearest = nil
+    local nearestDist = 20  -- 20 stud mesafe
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= lp then
+            local pChar = player.Character
+            if pChar then
+                local pRoot = pChar:FindFirstChild("HumanoidRootPart") or pChar:FindFirstChild("Torso")
+                if pRoot then
+                    local dist = (pos - pRoot.Position).Magnitude
+                    if dist < nearestDist then
+                        nearestDist = dist
+                        nearest = player
+                    end
+                end
+            end
+        end
+    end
+    
+    return nearest
+end
+
+-- Kucaklama fonksiyonu
+local function hug(target)
+    -- Önce eski welds temizle
+    for _, weld in ipairs(welds) do
+        pcall(function() weld:Destroy() end)
+    end
+    welds = {}
+    
+    local char = lp.Character
+    local targetChar = target.Character
+    
+    if not char or not targetChar then return false end
+    
+    -- Kucaklanacak parçalar (gövde ve kollar)
+    local parts = {
+        {name = "Torso", targetName = "Torso"},
+        {name = "UpperTorso", targetName = "UpperTorso"},
+        {name = "LowerTorso", targetName = "LowerTorso"},
+        {name = "Head", targetName = "Head"},
+        {name = "Left Arm", targetName = "Right Arm"},  -- Sol kol sağ kola
+        {name = "Right Arm", targetName = "Left Arm"},  -- Sağ kol sol kola
+        {name = "LeftHand", targetName = "RightHand"},
+        {name = "RightHand", targetName = "LeftHand"},
+    }
+    
+    for _, partInfo in ipairs(parts) do
+        local part = char:FindFirstChild(partInfo.name, true)
+        local targetPart = targetChar:FindFirstChild(partInfo.targetName, true)
+        
+        if part and targetPart and part:IsA("BasePart") and targetPart:IsA("BasePart") then
+            local weld = Instance.new("Weld")
+            weld.Part0 = part
+            weld.Part1 = targetPart
+            weld.C0 = CFrame.new(0, 0, 0)  -- Hizalama
+            weld.C1 = CFrame.new(0, 0, -0.5)  -- Biraz yakınlaştır
+            weld.Parent = part
+            table.insert(welds, weld)
+        end
+    end
+    
+    return #welds > 0
+end
+
+-- Kucaklamayı çöz
+local function unHug()
+    for _, weld in ipairs(welds) do
+        pcall(function() weld:Destroy() end)
+    end
+    welds = {}
+end
+
+-- Butona tıkla
+btn.MouseButton1Click:Connect(function()
+    if hugging then
+        -- Kucaklamayı çöz
+        unHug()
+        hugging = false
+        btn.Text = "KUCAKLA"
+        status.Text = "Hedef: Yok"
+        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    else
+        -- En yakın oyuncuyu bul
+        local target = findNearestPlayer()
+        if target then
+            local success = hug(target)
+            if success then
+                hugging = true
+                targetPlayer = target
+                btn.Text = "BIRAK"
+                status.Text = "Hedef: " .. target.Name
+                btn.BackgroundColor3 = Color3.fromRGB(80, 30, 30)
+            else
+                status.Text = "Kucaklanamadı!"
+            end
+        else
+            status.Text = "Yakında kimse yok!"
+        end
+    end
+end)
+
+-- Karakter ölünce veya değişince welds temizle
+lp.CharacterAdded:Connect(function()
+    unHug()
+    hugging = false
+    btn.Text = "KUCAKLA"
+    status.Text = "Hedef: Yok"
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+end)
+
+-- Bildirim
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Kucaklama Scripti",
+    Text = "Yanındaki oyuncuyu kucakla!",
+    Duration = 4
+})
