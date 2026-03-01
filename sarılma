@@ -1,10 +1,9 @@
 --[=[
-  SON VERSİYON - SADECE O SANA YAPIŞSIN
-  - Hedef sana yapışır (sen ona değil)
-  - Sen özgürce hareket edersin
-  - O hiç hareket edemez
+  SONUNDA DOĞRU VERSİYON - O BANA YAPIŞSIN
+  - Ben hareket ederim, o beni takip eder
+  - O bana yapışır, ben ona değil
   - Çözünce olduğu yerde kalır
-  - Animasyonlu geçişler
+  - Animasyonlu, çifte korumalı
 ]=]
 
 local Players = game:GetService("Players")
@@ -14,14 +13,14 @@ local lp = Players.LocalPlayer
 
 -- GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "YapisBana"
+gui.Name = "DogruYapis"
 gui.Parent = lp:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
--- Ana pencere
+-- Ana pencere (şık)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 280, 0, 200)
-frame.Position = UDim2.new(0.5, -140, 0.5, -100)
+frame.Size = UDim2.new(0, 280, 0, 180)
+frame.Position = UDim2.new(0.5, -140, 0.5, -90)
 frame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
 frame.Active = true
 frame.Draggable = true
@@ -32,77 +31,59 @@ corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = frame
 
 local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(100, 150, 255)
+stroke.Color = Color3.fromRGB(100, 200, 255)
 stroke.Thickness = 1.5
 stroke.Parent = frame
 
 -- Başlık
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 45)
-title.Text = "🎯 BANA YAPIŞ"
-title.TextColor3 = Color3.fromRGB(220, 220, 255)
+title.Text = "🎯 O BANA YAPIŞSIN"
+title.TextColor3 = Color3.fromRGB(200, 220, 255)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 18
+title.TextSize = 16
 title.Parent = frame
 
 -- Hedef göstergesi
-local targetFrame = Instance.new("Frame")
-targetFrame.Size = UDim2.new(0.9, 0, 0, 40)
-targetFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
-targetFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
-targetFrame.Parent = frame
-
-local targetCorner = Instance.new("UICorner")
-targetCorner.CornerRadius = UDim.new(0, 8)
-targetCorner.Parent = targetFrame
-
-local targetIcon = Instance.new("Frame")
-targetIcon.Size = UDim2.new(0, 8, 0, 8)
-targetIcon.Position = UDim2.new(0, 12, 0.5, -4)
-targetIcon.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-targetIcon.BorderSizePixel = 0
-targetIcon.Parent = targetFrame
-
-local targetIconCorner = Instance.new("UICorner")
-targetIconCorner.CornerRadius = UDim.new(1, 0)
-targetIconCorner.Parent = targetIcon
-
 local targetName = Instance.new("TextLabel")
-targetName.Size = UDim2.new(1, -30, 1, 0)
-targetName.Position = UDim2.new(0, 25, 0, 0)
+targetName.Size = UDim2.new(0.9, 0, 0, 30)
+targetName.Position = UDim2.new(0.05, 0, 0.2, 0)
+targetName.BackgroundColor3 = Color3.fromRGB(25, 25, 32)
 targetName.Text = "HEDEF: YOK"
 targetName.TextColor3 = Color3.fromRGB(180, 180, 200)
-targetName.BackgroundTransparency = 1
 targetName.Font = Enum.Font.Gotham
 targetName.TextSize = 13
-targetName.TextXAlignment = Enum.TextXAlignment.Left
-targetName.Parent = targetFrame
+targetName.Parent = frame
 
--- YAPIŞ butonu
-local yapisBtn = Instance.new("TextButton")
-yapisBtn.Size = UDim2.new(0.8, 0, 0, 45)
-yapisBtn.Position = UDim2.new(0.1, 0, 0.4, 0)
-yapisBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
-yapisBtn.Text = "📌 BANA YAPIŞ"
-yapisBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-yapisBtn.Font = Enum.Font.GothamBold
-yapisBtn.TextSize = 15
-yapisBtn.Parent = frame
+local targetCorner = Instance.new("UICorner")
+targetCorner.CornerRadius = UDim.new(0, 6)
+targetCorner.Parent = targetName
 
-local yapisCorner = Instance.new("UICorner")
-yapisCorner.CornerRadius = UDim.new(0, 8)
-yapisCorner.Parent = yapisBtn
+-- YAPIŞTIR butonu
+local yapistirBtn = Instance.new("TextButton")
+yapistirBtn.Size = UDim2.new(0.8, 0, 0, 40)
+yapistirBtn.Position = UDim2.new(0.1, 0, 0.4, 0)
+yapistirBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+yapistirBtn.Text = "📌 YAPIŞTIR"
+yapistirBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+yapistirBtn.Font = Enum.Font.GothamBold
+yapistirBtn.TextSize = 14
+yapistirBtn.Parent = frame
+
+local yapistirCorner = Instance.new("UICorner")
+yapistirCorner.CornerRadius = UDim.new(0, 8)
+yapistirCorner.Parent = yapistirBtn
 
 -- ÇÖZ butonu
 local cozBtn = Instance.new("TextButton")
-cozBtn.Size = UDim2.new(0.8, 0, 0, 45)
+cozBtn.Size = UDim2.new(0.8, 0, 0, 40)
 cozBtn.Position = UDim2.new(0.1, 0, 0.6, 0)
 cozBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
 cozBtn.Text = "🔓 ÇÖZ"
 cozBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 cozBtn.Font = Enum.Font.GothamBold
-cozBtn.TextSize = 15
+cozBtn.TextSize = 14
 cozBtn.Parent = frame
 
 local cozCorner = Instance.new("UICorner")
@@ -111,8 +92,8 @@ cozCorner.Parent = cozBtn
 
 -- Kapatma
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 26, 0, 26)
-closeBtn.Position = UDim2.new(1, -34, 0, 8)
+closeBtn.Size = UDim2.new(0, 24, 0, 24)
+closeBtn.Position = UDim2.new(1, -32, 0, 8)
 closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
 closeBtn.Text = "✕"
 closeBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
@@ -163,29 +144,24 @@ local function findNearestPlayer()
     return nearest
 end
 
--- Yapıştır (SADECE O SANA YAPIŞIR)
-local function yapis(target)
+-- Yapıştır (O BANA YAPIŞIR)
+local function yapistir(target)
     local char = lp.Character
     local targetChar = target.Character
     
     if not char or not targetChar then return false end
     
-    -- Senin root'un
     local myRoot = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
-    -- Onun root'u
     local targetRoot = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
-    -- Onun humanoid'i
     local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
     
     if not myRoot or not targetRoot or not targetHum then return false end
     
-    -- Hedefi tamamen durdur
+    -- Hedefi felç et
     targetHum.PlatformStand = true
     targetHum.AutoRotate = false
     targetHum.WalkSpeed = 0
     targetHum.JumpPower = 0
-    
-    -- Fiziksel sabitleme
     targetRoot.Anchored = false
     targetRoot.CanCollide = false
     
@@ -197,20 +173,19 @@ local function yapis(target)
         if heartbeatConn then heartbeatConn:Disconnect() end
     end)
     
-    -- Weld (ONU SANA BAĞLA, SENİ ONA DEĞİL!)
-    -- DİKKAT: Part0 = ONUN root'u, Part1 = SENİN root'un
+    -- DOĞRU WELD: Part0 = ben, Part1 = hedef
     weld = Instance.new("Weld")
-    weld.Part0 = targetRoot  -- ONUN root'u
-    weld.Part1 = myRoot       -- SENİN root'un
-    weld.C0 = CFrame.new(0, 0, 2)  -- Onun pozisyonu (önde dursun)
-    weld.C1 = CFrame.new(0, 0, 0)  -- Senin pozisyonun
-    weld.Parent = targetRoot
+    weld.Part0 = myRoot      -- BEN
+    weld.Part1 = targetRoot  -- HEDEF
+    weld.C0 = CFrame.new(0, 0, 2)  -- Onun benim önümde durması için
+    weld.C1 = CFrame.new(0, 0, 0)
+    weld.Parent = myRoot
     
-    -- Yumuşak animasyon
-    local tween = TweenService:Create(weld, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {C0 = CFrame.new(0, 0, 1.5)})
+    -- Animasyonlu geçiş
+    local tween = TweenService:Create(weld, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {C0 = CFrame.new(0, 0, 1.8)})
     tween:Play()
     
-    -- BodyPosition (yedek)
+    -- Yedek sistem (BodyPosition)
     bp = Instance.new("BodyPosition")
     bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
     bp.P = 20000
@@ -221,14 +196,14 @@ local function yapis(target)
     bg.P = 20000
     bg.Parent = targetRoot
     
-    -- Heartbeat ile sürekli kontrol (SENİN pozisyonuna göre onu ayarla)
+    -- Heartbeat ile sürekli kontrol
     heartbeatConn = RunService.Heartbeat:Connect(function()
         if not yapisti or not targetChar or not targetChar.Parent or not char or not char.Parent then
             return
         end
         if myRoot and targetRoot then
-            -- Onu senin pozisyonuna göre ayarla (önde dursun)
-            local targetPos = myRoot.Position + myRoot.CFrame.LookVector * 2 + Vector3.new(0, 0, 0)
+            -- Hedefi sürekli benim önümde tut
+            local targetPos = myRoot.Position + myRoot.CFrame.LookVector * 2
             bp.Position = targetPos
             bg.CFrame = myRoot.CFrame
         end
@@ -237,7 +212,7 @@ local function yapis(target)
     return true
 end
 
--- Çöz (ışınlama YOK, olduğu yerde kalsın)
+-- Çöz (ışınlama yok, olduğu yerde kalsın)
 local function coz()
     yapisti = false
     
@@ -253,12 +228,9 @@ local function coz()
     
     pcall(function()
         if weld then 
-            -- Önce weld'i yumuşakça yok et
             local tween = TweenService:Create(weld, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {C0 = weld.C0 * CFrame.new(0, 0, 0.5)})
             tween:Play()
-            tween.Completed:Connect(function()
-                pcall(function() weld:Destroy() end)
-            end)
+            tween.Completed:Connect(function() pcall(function() weld:Destroy() end) end)
         end
         if bp then bp:Destroy() end
         if bg then bg:Destroy() end
@@ -269,8 +241,8 @@ local function coz()
     hedef = nil
 end
 
--- YAPIŞ butonu
-yapisBtn.MouseButton1Click:Connect(function()
+-- YAPIŞTIR butonu
+yapistirBtn.MouseButton1Click:Connect(function()
     if yapisti then
         targetName.Text = "ZATEN YAPIŞIK!"
         return
@@ -278,21 +250,20 @@ yapisBtn.MouseButton1Click:Connect(function()
     
     local target = findNearestPlayer()
     if target then
-        targetName.Text = "⏳ YAPIŞIYOR..."
+        targetName.Text = "YAPIŞIYOR..."
         task.wait(0.1)
-        local success = yapis(target)
+        local success = yapistir(target)
         if success then
             yapisti = true
             hedef = target
-            targetName.Text = "📌 YAPIŞIK: " .. target.Name:upper()
-            targetIcon.BackgroundColor3 = Color3.fromRGB(100, 255, 150)
-            yapisBtn.BackgroundColor3 = Color3.fromRGB(70, 120, 220)
-            yapisBtn.Text = "📌 YAPIŞIK"
+            targetName.Text = "✅ YAPIŞIK: " .. target.Name
+            yapistirBtn.BackgroundColor3 = Color3.fromRGB(70, 120, 200)
+            yapistirBtn.Text = "📌 YAPIŞTI"
         else
-            targetName.Text = "❌ YAPIŞAMADI!"
+            targetName.Text = "❌ BAŞARISIZ!"
         end
     else
-        targetName.Text = "⚠️ YAKINDA KİMSE YOK!"
+        targetName.Text = "⚠️ KİMSE YOK!"
     end
 end)
 
@@ -301,26 +272,24 @@ cozBtn.MouseButton1Click:Connect(function()
     if yapisti then
         coz()
         targetName.Text = "HEDEF: YOK"
-        targetIcon.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-        yapisBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
-        yapisBtn.Text = "📌 BANA YAPIŞ"
+        yapistirBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+        yapistirBtn.Text = "📌 YAPIŞTIR"
     else
-        targetName.Text = "⚠️ YAPIŞIK KİMSE YOK!"
+        targetName.Text = "⚠️ YAPIŞIK YOK!"
     end
 end)
 
--- Karakter değişince
+-- Karakter ölünce
 lp.CharacterAdded:Connect(function()
     coz()
     targetName.Text = "HEDEF: YOK"
-    targetIcon.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-    yapisBtn.BackgroundColor3 = Color3.fromRGB(50, 100, 200)
-    yapisBtn.Text = "📌 BANA YAPIŞ"
+    yapistirBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 200)
+    yapistirBtn.Text = "📌 YAPIŞTIR"
 end)
 
 -- Bildirim
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Bana Yapış Sistemi",
-    Text = "Sadece o sana yapışır, sen özgürsün!",
+    Title = "Doğru Yapışma",
+    Text = "O sana yapışır, sen ona değil!",
     Duration = 4
 })
