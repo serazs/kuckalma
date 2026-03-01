@@ -1,8 +1,9 @@
 --[=[
-  KUCAĞINDA OTURT - PROFESYONEL EDİTİON
-  - Minimalist, koyu tema, keskin çizgiler
-  - Hedefi kucağında oturtur, sen hareket edince o da gelir
-  - Şeffaf cam efekti, gölgeler, profesyonel görünüm
+  YANIMDA OTUR - GÖLGE MODU
+  - Hedef kişiye "otur" dersen, gelir yanında yere oturur
+  - Sen hareket edince o da oturarak seni takip eder
+  - "ayrıl" dersen kalkar ve serbest kalır
+  - Profesyonel arayüz
 ]=]
 
 local Players = game:GetService("Players")
@@ -11,201 +12,118 @@ local lp = Players.LocalPlayer
 
 -- Ana GUI
 local gui = Instance.new("ScreenGui")
-gui.Name = "LapSitPro"
+gui.Name = "YanimdaOtur"
 gui.Parent = lp:WaitForChild("PlayerGui")
 gui.ResetOnSpawn = false
 
--- Ana çerçeve (Dark tema, cam efekti)
+-- Ana çerçeve (profesyonel)
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 280, 0, 170)
-frame.Position = UDim2.new(0.5, -140, 0.5, -85)
+frame.Size = UDim2.new(0, 280, 0, 180)
+frame.Position = UDim2.new(0.5, -140, 0.5, -90)
 frame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-frame.BackgroundTransparency = 0.1
 frame.Active = true
 frame.Draggable = true
-frame.ClipsDescendants = false
 frame.Parent = gui
 
--- Arka plan parlaklığı
-local gradient = Instance.new("UIGradient")
-gradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 30)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 10, 15))
-})
-gradient.Rotation = 90
-gradient.Parent = frame
-
--- Kenarlık (ince, keskin)
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 6)
+corner.CornerRadius = UDim.new(0, 8)
 corner.Parent = frame
 
 local stroke = Instance.new("UIStroke")
 stroke.Color = Color3.fromRGB(60, 60, 70)
-stroke.Thickness = 1.2
-stroke.Transparency = 0.2
+stroke.Thickness = 1
 stroke.Parent = frame
-
--- Gölge (dış)
-local shadow = Instance.new("ImageLabel")
-shadow.Size = UDim2.new(1, 20, 1, 20)
-shadow.Position = UDim2.new(0, -10, 0, -10)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-shadow.ImageTransparency = 0.6
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10, 10, 10, 10)
-shadow.Parent = frame
-shadow.ZIndex = -1
-
--- Üst çizgi (ayırıcı)
-local topLine = Instance.new("Frame")
-topLine.Size = UDim2.new(1, -20, 0, 1)
-topLine.Position = UDim2.new(0, 10, 0, 45)
-topLine.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
-topLine.BorderSizePixel = 0
-topLine.Parent = frame
 
 -- Başlık
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 45)
-title.Text = "LAP SIT v2.0"
+title.Text = "YANIMDA OTUR v2.0"
 title.TextColor3 = Color3.fromRGB(230, 230, 240)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Position = UDim2.new(0, 15, 0, 0)
 title.Parent = frame
 
--- Küçük ikon (nokta)
-local dot = Instance.new("Frame")
-dot.Size = UDim2.new(0, 6, 0, 6)
-dot.Position = UDim2.new(1, -25, 0, 20)
-dot.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-dot.BorderSizePixel = 0
-dot.Parent = frame
+-- Otur butonu
+local sitBtn = Instance.new("TextButton")
+sitBtn.Size = UDim2.new(0.8, 0, 0, 40)
+sitBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
+sitBtn.BackgroundColor3 = Color3.fromRGB(45, 100, 150)
+sitBtn.Text = "OTUR"
+sitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+sitBtn.Font = Enum.Font.GothamBold
+sitBtn.TextSize = 14
+sitBtn.Parent = frame
 
-local dotCorner = Instance.new("UICorner")
-dotCorner.CornerRadius = UDim.new(1, 0)
-dotCorner.Parent = dot
+local sitCorner = Instance.new("UICorner")
+sitCorner.CornerRadius = UDim.new(0, 6)
+sitCorner.Parent = sitBtn
 
--- Ana buton
-local btn = Instance.new("TextButton")
-btn.Size = UDim2.new(0.8, 0, 0, 42)
-btn.Position = UDim2.new(0.1, 0, 0.35, 0)
-btn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
-btn.Text = "SIT ON LAP"
-btn.TextColor3 = Color3.fromRGB(220, 220, 230)
-btn.Font = Enum.Font.GothamBold
-btn.TextSize = 14
-btn.AutoButtonColor = false
-btn.Parent = frame
+-- Ayrıl butonu
+local leaveBtn = Instance.new("TextButton")
+leaveBtn.Size = UDim2.new(0.8, 0, 0, 40)
+leaveBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
+leaveBtn.BackgroundColor3 = Color3.fromRGB(100, 45, 45)
+leaveBtn.Text = "AYRIL"
+leaveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+leaveBtn.Font = Enum.Font.GothamBold
+leaveBtn.TextSize = 14
+leaveBtn.Parent = frame
 
-local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 4)
-btnCorner.Parent = btn
+local leaveCorner = Instance.new("UICorner")
+leaveCorner.CornerRadius = UDim.new(0, 6)
+leaveCorner.Parent = leaveBtn
 
-local btnStroke = Instance.new("UIStroke")
-btnStroke.Color = Color3.fromRGB(80, 80, 95)
-btnStroke.Thickness = 1
-btnStroke.Parent = btn
-
--- Buton hover efekti
-btn.MouseEnter:Connect(function()
-    TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 55)}):Play()
-end)
-
-btn.MouseLeave:Connect(function()
-    if not sitting then
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 42)}):Play()
-    else
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 35, 42)}):Play()
-    end
-end)
-
--- Durum göstergesi
-local statusContainer = Instance.new("Frame")
-statusContainer.Size = UDim2.new(0.8, 0, 0, 36)
-statusContainer.Position = UDim2.new(0.1, 0, 0.65, 0)
-statusContainer.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-statusContainer.Parent = frame
+-- Durum etiketi
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(0.9, 0, 0, 25)
+status.Position = UDim2.new(0.05, 0, 0.8, 0)
+status.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+status.Text = "HEDEF: YOK"
+status.TextColor3 = Color3.fromRGB(180, 180, 180)
+status.Font = Enum.Font.Gotham
+status.TextSize = 12
+status.Parent = frame
 
 local statusCorner = Instance.new("UICorner")
 statusCorner.CornerRadius = UDim.new(0, 4)
-statusCorner.Parent = statusContainer
+statusCorner.Parent = status
 
-local statusStroke = Instance.new("UIStroke")
-statusStroke.Color = Color3.fromRGB(50, 50, 60)
-statusStroke.Thickness = 1
-statusStroke.Parent = statusContainer
-
-local statusIcon = Instance.new("Frame")
-statusIcon.Size = UDim2.new(0, 8, 0, 8)
-statusIcon.Position = UDim2.new(0, 12, 0.5, -4)
-statusIcon.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
-statusIcon.BorderSizePixel = 0
-statusIcon.Parent = statusContainer
-
-local iconCorner = Instance.new("UICorner")
-iconCorner.CornerRadius = UDim.new(1, 0)
-iconCorner.Parent = statusIcon
-
-local statusText = Instance.new("TextLabel")
-statusText.Size = UDim2.new(1, -30, 1, 0)
-statusText.Position = UDim2.new(0, 25, 0, 0)
-statusText.Text = "TARGET: NONE"
-statusText.TextColor3 = Color3.fromRGB(150, 150, 160)
-statusText.BackgroundTransparency = 1
-statusText.Font = Enum.Font.Gotham
-statusText.TextSize = 12
-statusText.TextXAlignment = Enum.TextXAlignment.Left
-statusText.Parent = statusContainer
-
--- Kapatma butonu (minimal)
+-- Kapatma butonu
 local closeBtn = Instance.new("TextButton")
 closeBtn.Size = UDim2.new(0, 24, 0, 24)
 closeBtn.Position = UDim2.new(1, -32, 0, 10)
-closeBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+closeBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
 closeBtn.Text = "✕"
-closeBtn.TextColor3 = Color3.fromRGB(140, 140, 150)
+closeBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 closeBtn.Font = Enum.Font.Gotham
 closeBtn.TextSize = 14
 closeBtn.Parent = frame
 
 local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 4)
+closeCorner.CornerRadius = UDim.new(0, 6)
 closeCorner.Parent = closeBtn
-
-closeBtn.MouseEnter:Connect(function()
-    TweenService:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 35, 42), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-end)
-
-closeBtn.MouseLeave:Connect(function()
-    TweenService:Create(closeBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 42), TextColor3 = Color3.fromRGB(140, 140, 150)}):Play()
-end)
 
 closeBtn.MouseButton1Click:Connect(function()
     gui:Destroy()
 end)
 
 -- Değişkenler
-local sitting = false
-local targetPlayer = nil
+local following = false
+local follower = nil
 local weld = nil
+local sitPosition = CFrame.new(0, -2.5, 2) -- Yanında oturma pozisyonu
 
 -- En yakın oyuncuyu bul
 local function findNearestPlayer()
     local char = lp.Character
     if not char then return nil end
-    
     local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
     if not root then return nil end
     
     local pos = root.Position
     local nearest = nil
-    local nearestDist = 15
+    local nearestDist = 20
     
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= lp then
@@ -222,102 +140,105 @@ local function findNearestPlayer()
             end
         end
     end
-    
     return nearest
 end
 
--- Kucağa oturt
-local function sitOnLap(target)
+-- Oturt (yanına)
+local function makeSit(target)
     local char = lp.Character
     local targetChar = target.Character
     
     if not char or not targetChar then return false end
     
-    local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
-    local targetHip = targetChar:FindFirstChild("LowerTorso") or targetChar:FindFirstChild("Torso")
-    
-    if not torso or not targetHip then return false end
-    
+    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    local targetRoot = targetChar:FindFirstChild("HumanoidRootPart") or targetChar:FindFirstChild("Torso")
     local targetHum = targetChar:FindFirstChildOfClass("Humanoid")
-    if targetHum then
-        targetHum.PlatformStand = true
-        targetHum.Sit = true
-    end
     
-    if weld then
-        pcall(function() weld:Destroy() end)
-        weld = nil
-    end
+    if not root or not targetRoot or not targetHum then return false end
+    
+    -- Hedefi oturt
+    targetHum.Sit = true
+    targetHum.PlatformStand = false
+    
+    -- Weld ile takip etmesini sağla
+    if weld then pcall(function() weld:Destroy() end) end
     
     weld = Instance.new("Weld")
-    weld.Part0 = torso
-    weld.Part1 = targetHip
-    weld.C0 = CFrame.new(0, -1.2, 0.8)
+    weld.Part0 = root
+    weld.Part1 = targetRoot
+    weld.C0 = sitPosition  -- Yanında oturma pozisyonu
     weld.C1 = CFrame.new(0, 0, 0)
-    weld.Parent = torso
+    weld.Parent = root
     
     return true
 end
 
--- Bırak
-local function release()
+-- Ayrıl
+local function makeLeave()
     if weld then
         pcall(function() weld:Destroy() end)
         weld = nil
     end
     
-    if targetPlayer and targetPlayer.Character then
-        local hum = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if follower and follower.Character then
+        local hum = follower.Character:FindFirstChildOfClass("Humanoid")
         if hum then
-            hum.PlatformStand = false
             hum.Sit = false
+            hum.PlatformStand = false
         end
     end
+    
+    following = false
+    follower = nil
+    status.Text = "HEDEF: YOK"
 end
 
--- Buton işlevi
-btn.MouseButton1Click:Connect(function()
-    if sitting then
-        release()
-        sitting = false
-        targetPlayer = nil
-        btn.Text = "SIT ON LAP"
-        statusText.Text = "TARGET: NONE"
-        statusIcon.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 42)}):Play()
-    else
-        local target = findNearestPlayer()
-        if target then
-            local success = sitOnLap(target)
-            if success then
-                sitting = true
-                targetPlayer = target
-                btn.Text = "RELEASE"
-                statusText.Text = "TARGET: " .. string.upper(target.Name)
-                statusIcon.BackgroundColor3 = Color3.fromRGB(150, 200, 255)
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 35, 42)}):Play()
-            else
-                statusText.Text = "TARGET: INVALID"
-            end
+-- OTUR butonu
+sitBtn.MouseButton1Click:Connect(function()
+    if following then
+        status.Text = "ZATEN BİRİ OTURUYOR!"
+        return
+    end
+    
+    local target = findNearestPlayer()
+    if target then
+        local success = makeSit(target)
+        if success then
+            following = true
+            follower = target
+            status.Text = "HEDEF: " .. target.Name .. " (OTURUYOR)"
+            sitBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 180)
         else
-            statusText.Text = "TARGET: NOT FOUND"
+            status.Text = "OTURTULAMADI!"
         end
+    else
+        status.Text = "YAKINDA KİMSE YOK!"
+    end
+end)
+
+-- AYRIL butonu
+leaveBtn.MouseButton1Click:Connect(function()
+    if following then
+        makeLeave()
+        sitBtn.BackgroundColor3 = Color3.fromRGB(45, 100, 150)
+        status.Text = "AYRILDI"
+        task.wait(1)
+        status.Text = "HEDEF: YOK"
+    else
+        status.Text = "OTURAN KİMSE YOK!"
     end
 end)
 
 -- Karakter ölünce temizle
 lp.CharacterAdded:Connect(function()
-    release()
-    sitting = false
-    btn.Text = "SIT ON LAP"
-    statusText.Text = "TARGET: NONE"
-    statusIcon.BackgroundColor3 = Color3.fromRGB(80, 80, 90)
-    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+    makeLeave()
+    sitBtn.BackgroundColor3 = Color3.fromRGB(45, 100, 150)
+    status.Text = "HEDEF: YOK"
 end)
 
 -- Bildirim
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Lap Sit Pro",
-    Text = "Professional lap sitting system activated",
-    Duration = 3
+    Title = "Yanımda Otur",
+    Text = "Hedef kişi yanında oturur ve seni takip eder",
+    Duration = 4
 })
